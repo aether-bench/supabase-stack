@@ -1,17 +1,18 @@
 #!/bin/sh
-# Real work on the box, timed per phase: clone fastify at a pinned tag, npm ci with a cold cache, eslint (one core),
+# Real work on the box, timed per phase: clone fastify at a pinned tag, npm install with a cold cache (fastify ships
+# no lockfile, so npm ci cannot run), eslint (one core),
 # then the unit suite (every core). Prints "WORK total Ns" last so a poller knows it finished.
 set -eu
 TAG="${WORK_TAG:-v5.12.7}"
 now() { date +%s%N; }
 secs() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%.1f", (b - a) / 1e9 }'; }
 rm -rf /tmp/work && mkdir -p /tmp/work && cd /tmp/work
-git clone -q --depth 1 --branch "$TAG" https://github.com/fastify/fastify.git
+git -c advice.detachedHead=false clone -q --depth 1 --branch "$TAG" https://github.com/fastify/fastify.git
 cd fastify
 echo "fastify $(git rev-parse --short HEAD) node $(node --version) npm $(npm --version)"
 export npm_config_cache=/tmp/work/npmcache
 t0=$(now)
-npm ci --no-audit --no-fund > /tmp/work-install.log 2>&1
+npm install --no-audit --no-fund > /tmp/work-install.log 2>&1
 t1=$(now); echo "install $(secs "$t0" "$t1")s"
 npm run lint > /tmp/work-lint.log 2>&1
 t2=$(now); echo "lint $(secs "$t1" "$t2")s"
