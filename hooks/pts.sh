@@ -2,6 +2,7 @@
 # boat.dev's CPU benchmark, reproduced: Phoronix Test Suite 10.8.4 running pts/node-web-tooling-1.0.1 in batch mode
 # with PTS's own run-count convergence, the way github.com/AnicetNgrt/hpc-sandbox-benchmarks (lib/bench.sh, cpu-node)
 # does it. Prints the wall time and PTS's result lines; the metric is Runs Per Second.
+# A C/C++ toolchain is installed because pts/compress-7zip builds 7-Zip from source.
 set -eu
 # PTS_TEST picks the profile; the default is the single-box Node tooling suite, pts/compress-7zip is the all-core one.
 TEST="${PTS_TEST:-pts/node-web-tooling-1.0.1}"
@@ -9,11 +10,11 @@ PTS_VERSION=10.8.4
 RELEASES="https://github.com/phoronix-test-suite/phoronix-test-suite/releases/download/v${PTS_VERSION}"
 if command -v apt-get >/dev/null 2>&1; then
   sudo apt-get update -qq >/dev/null
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php-cli php-xml curl unzip procps >/dev/null
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php-cli php-xml curl unzip procps build-essential >/dev/null
   curl -fsSL -o /tmp/pts.deb "${RELEASES}/phoronix-test-suite_${PTS_VERSION}_all.deb"
   sudo dpkg -i /tmp/pts.deb >/dev/null
 else
-  sudo dnf install -y -q php-cli php-xml unzip procps-ng tar >/dev/null
+  sudo dnf install -y -q php-cli php-xml unzip procps-ng tar make gcc gcc-c++ >/dev/null
   curl -fsSL -o /tmp/pts.tar.gz "${RELEASES}/phoronix-test-suite-${PTS_VERSION}.tar.gz"
   tar -xzf /tmp/pts.tar.gz -C /tmp
   (cd /tmp/phoronix-test-suite && sudo ./install-sh >/dev/null)
