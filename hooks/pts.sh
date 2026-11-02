@@ -30,3 +30,6 @@ echo "PTS node-web-tooling wall $((end - start))s ($TEST)"
 grep -E 'Average|Deviation|Runs Per Second|MIPS|Test Run|Result|Test:|Compression|Decompression' /tmp/pts-run.log | head -30
 echo "--- host"
 grep -m1 'model name' /proc/cpuinfo; nproc; free -g | sed -n 2p
+lscpu | grep -E '^(Thread|Core|Socket)'
+echo "steal jiffies $(awk '/^cpu /{print $9}' /proc/stat) of $(awk '/^cpu /{s=0; for (i=2;i<=NF;i++) s+=$i; print s}' /proc/stat)"
+cat /sys/fs/cgroup/cpu.max 2>/dev/null; grep -E 'nr_throttled|throttled_usec' /sys/fs/cgroup/cpu.stat 2>/dev/null
