@@ -1,0 +1,16 @@
+{
+  "warmHook": {
+    "timeout": 1800000,
+    "commands": [
+      "npm ci",
+      "npx supabase start --ignore-health-check && npx supabase stop"
+    ]
+  },
+  "startHook": {
+    "timeout": 600000,
+    "commands": [
+      "npm ci",
+      "sh hooks/start.sh"
+    ]
+  }
+}

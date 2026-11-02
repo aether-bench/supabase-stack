@@ -1,0 +1,8 @@
+{
+  "setup": "npm ci",
+  "docker_prewarm": "npx supabase start --ignore-health-check && npx supabase stop",
+  "terminals": [
+    { "name": "supabase", "command": "npx supabase start && sleep infinity", "port": 54321 },
+    { "name": "app", "command": "npm run dev", "port": 3000 }
+  ]
+}
