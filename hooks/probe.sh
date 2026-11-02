@@ -1,12 +1,22 @@
 #!/bin/sh
-# The benchmark's one shell call. Prints the app's /health and its HTTP status; succeeds only when the app
-# answered and reached Postgres, and says what it saw otherwise so a failure explains itself.
-if ! answer=$(curl -s -w '\n%{http_code}' http://127.0.0.1:3000/health 2>&1); then
-  echo "no answer on :3000: $answer"
-  exit 1
-fi
-echo "$answer"
-case "$answer" in
-  *'"db":"ok"'*) exit 0 ;;
-  *) exit 1 ;;
-esac
+# The benchmark's one shell call. Waits for the app's /health to answer through Postgres, up to nine minutes,
+# then prints the answer, its HTTP status and how long it waited; a product that delivers the prompt before its
+# startup hooks finish is measured by that wait, not failed by it.
+started=$(date +%s)
+limit=540
+while :; do
+  answer=$(curl -s -w '\n%{http_code}' http://127.0.0.1:3000/health 2>&1) || answer="no answer on :3000: $answer"
+  waited=$(( $(date +%s) - started ))
+  case "$answer" in
+    *'"db":"ok"'*)
+      echo "$answer"
+      echo "UP after ${waited}s"
+      exit 0 ;;
+  esac
+  if [ "$waited" -ge "$limit" ]; then
+    echo "$answer"
+    echo "NOT UP after ${waited}s"
+    exit 1
+  fi
+  sleep 1
+done
