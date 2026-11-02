@@ -16,6 +16,6 @@ curl -sf http://127.0.0.1:3000/health   # {"db":"ok","now":"...","tables":...}
 
 `hooks/start.sh` is idempotent: it starts the stack, starts the app if it is not answering, and waits for `/health`.
 
-`tools/vm_bench.py` is the in-sandbox workload the benchmark's `vm` scenario runs: ripgrep over the tree, reading every file, a Node CPU loop, `git status`, a 256 MB fsynced write.
+`tools/bench/vm_bench.py` is the in-sandbox workload the benchmark's `vm` scenario runs: ripgrep over the tree, reading every file, a Node CPU loop, `git status`, a 256 MB fsynced write.
 
 The harness is `tools/bench/bench.py` in [Aether-Runtime/aether](https://github.com/Aether-Runtime/aether).
