@@ -16,9 +16,10 @@ npm install --no-audit --no-fund > /tmp/work-install.log 2>&1
 t1=$(now); echo "install $(secs "$t0" "$t1")s"
 npm run lint > /tmp/work-lint.log 2>&1
 t2=$(now); echo "lint $(secs "$t1" "$t2")s"
-npm run unit > /tmp/work-unit.log 2>&1
+# the dev stack holds :3000, so two listen tests fail on every product; the suite's time still counts
+npm run unit > /tmp/work-unit.log 2>&1 || true
 t3=$(now); echo "unit $(secs "$t2" "$t3")s"
-grep -E '^# (tests|pass|fail)' /tmp/work-unit.log | head -3 || true
+grep -oE '(tests|pass|fail) [0-9]+' /tmp/work-unit.log | tail -3 | tr '\n' ' '; echo
 echo "--- host"
 grep -m1 'model name' /proc/cpuinfo; nproc; free -g | sed -n 2p
 echo "steal jiffies $(awk '/^cpu /{print $9}' /proc/stat) of $(awk '/^cpu /{s=0; for (i=2;i<=NF;i++) s+=$i; print s}' /proc/stat)"
